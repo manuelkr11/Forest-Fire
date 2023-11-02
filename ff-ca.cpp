@@ -65,7 +65,7 @@ ForestFireAutomata::ForestFireAutomata(int width, int height, int** input)
 }
 
 ForestFireAutomata::ForestFireAutomata(int width, int height, bool trees) 
-        : height(height), width(width), probGrowth(0.01), probCatchFire(0.2) {
+        : height(height), width(width), probGrowth(0.0005), probCatchFire(0.01) {
     status = new Status*[width];
     for (int i = 0; i < width; i++){
         status[i] = new Status[height];
@@ -116,17 +116,22 @@ void ForestFireAutomata::setTree(int x, int y){
     }
 }
 
-void ForestFireAutomata::simulate() {
+void ForestFireAutomata::simulate(int nthreads) {
     Status** old_status = new Status*[width];
     for (int i = 0; i < width; i++){
         old_status[i] = new Status[height];
     }
+    
+    #pragma omp parallel num_threads(nthreads)
+	#pragma omp for
     for (int i = 0; i < width; i++){
         for (int j = 0; j < height; j++){
             old_status[i][j] = status[i][j];
         }
     }
 
+    #pragma omp parallel num_threads(nthreads)
+	#pragma omp for
     for (int i = 0; i < width; i++){
         for (int j = 0; j < height; j++){
             if (!old_status[i][j].get_tree()) {
@@ -140,16 +145,17 @@ void ForestFireAutomata::simulate() {
             }
             else {
                 if (old_status[i][j].get_fire()) {
-                    status[i][j].reset_tree();  //burn down
+                    status[i][j].reset_tree();
                 }
                 else {
                     int fire_neighbor_count = 0;
-                    for (int k = 0; k < neighbors.getNeighborCount(); k++) { //TODO could work with breakk
+                    for (int k = 0; k < neighbors.getNeighborCount(); k++) {
                         int x_neighbor = i + neighbors.getNeighbor(k).first;
                         int y_neighbor = j + neighbors.getNeighbor(k).second;
                         if ((x_neighbor>=0) && (x_neighbor<width) && (y_neighbor>=0) && (y_neighbor<height)) {
                             if(old_status[x_neighbor][y_neighbor].get_fire()){
                                 fire_neighbor_count++;
+                                break;
                             }
                         }
                     }

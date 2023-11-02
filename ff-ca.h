@@ -22,7 +22,7 @@ private:
     int width;
     int height;
     Status** status;
-    vonNeumann neighbors;
+    vonMoore neighbors;
     float probGrowth;
     float probCatchFire;
 
@@ -35,6 +35,6 @@ public:
     void setProbGrowth(float probability);
     void setProbCatchFire(float probability);
     void setTree(int x, int y);
-    void simulate();
+    void simulate(int nthreads);
     int getStatus(int x, int y) const;
 };

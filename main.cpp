@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include <random>
+#include <omp.h>
 
 int main (int argc, char* argv[]) {
 
@@ -13,6 +14,8 @@ int main (int argc, char* argv[]) {
 
     int width = 150;
     int height = 100;
+
+    int nthreads = 1;
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
@@ -86,7 +89,7 @@ int main (int argc, char* argv[]) {
                 }
             }
 
-            if (counter%10==0) {
+            if (counter%1==0) {
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
 
@@ -107,7 +110,7 @@ int main (int argc, char* argv[]) {
             SDL_RenderPresent(renderer);
             }
 
-            forest_fire.simulate();
+            forest_fire.simulate(nthreads);
 
         }
 
