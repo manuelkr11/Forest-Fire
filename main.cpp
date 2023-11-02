@@ -2,10 +2,12 @@
 #include "ff-ca.h"
 #include <SDL2/SDL.h>
 #include <string>
+#include <random>
 
 int main (int argc, char* argv[]) {
 
     bool measure = false;
+
     int screen_width = 1600;
     int screen_height = 1000;
 
@@ -26,6 +28,20 @@ int main (int argc, char* argv[]) {
         }
         else if (arg=="--measure") {
             measure = true;
+        }
+    }
+
+    ForestFireAutomata forest_fire(width, height, true);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dis(0.0, 1.0);
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            float probability = dis(gen);
+            if (probability < 0.6 - ((std::sqrt((i - height / 2) * (i - height / 2) + (j - width / 2) * (j - width / 2))) / (std::max(width, height) / 2))*0.8) {
+                forest_fire.setTree(i, j);
+            }
         }
     }
 
@@ -73,11 +89,11 @@ int main (int argc, char* argv[]) {
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
                     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-                    if ((i%2==1 && j%2==1) || (i%2==0 && j%2==0)) {
+                    if (forest_fire.getStatus(i, j)==1) {
                         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                        SDL_Rect tileRect = {tile_size*i, tile_size*j, tile_size, tile_size};
+                        SDL_RenderFillRect(renderer, &tileRect);
                     }
-                    SDL_Rect tileRect = {tile_size*i, tile_size*j, tile_size, tile_size};
-                    SDL_RenderFillRect(renderer, &tileRect);
                 }
             }
             SDL_RenderPresent(renderer);

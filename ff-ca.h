@@ -19,21 +19,22 @@ public:
 
 class ForestFireAutomata {
 private:
-    int height;
     int width;
+    int height;
     Status** status;
     Neighborhood neighbors;
     float probGrowth;
     float probCatchFire;
 
 public:
-    ForestFireAutomata(int height, int width, int** input);
-    ForestFireAutomata(int height, int weight, bool trees);
+    ForestFireAutomata(int width, int height, int** input);
+    ForestFireAutomata(int width, int height, bool trees);
     ~ForestFireAutomata();
     int getHeight() const;
     int getWidth() const;
     void setProbGrowth(float probability);
     void setProbCatchFire(float probability);
+    void setTree(int x, int y);
     void simulate();
-    int getStatus(int height, int width) const;
+    int getStatus(int x, int y) const;
 };

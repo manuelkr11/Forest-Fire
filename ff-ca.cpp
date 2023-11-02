@@ -44,14 +44,14 @@ Status& Status::operator=(const Status& other) {
     return *this;
 }
 
-ForestFireAutomata::ForestFireAutomata(int height, int width, int** input) 
+ForestFireAutomata::ForestFireAutomata(int width, int height, int** input) 
         : height(height), width(width), probGrowth(0.), probCatchFire(0.) {
-    status = new Status*[this->height];
-    for (int i = 0; i < this->height; i++){
-        status[i] = new Status[this->width];
+    status = new Status*[this->width];
+    for (int i = 0; i < this->width; i++){
+        status[i] = new Status[this->height];
     }
-    for (int i = 0; i < height; i++){
-        for (int j = 0; j < width; j++){
+    for (int i = 0; i < width; i++){
+        for (int j = 0; j < height; j++){
             switch(input[i][j]){
                 case 1:
                     status[i][j].set_tree();
@@ -64,19 +64,19 @@ ForestFireAutomata::ForestFireAutomata(int height, int width, int** input)
     }
 }
 
-ForestFireAutomata::ForestFireAutomata(int height, int width, bool trees) 
+ForestFireAutomata::ForestFireAutomata(int width, int height, bool trees) 
         : height(height), width(width), probGrowth(0.), probCatchFire(0.) {
-    status = new Status*[height];
-    for (int i = 0; i < height; i++){
-        status[i] = new Status[width];
+    status = new Status*[width];
+    for (int i = 0; i < width; i++){
+        status[i] = new Status[height];
     }
 
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> dis(0.0, 1.0);
 
-    for (int i = 0; i < height; i++){
-        for (int j = 0; j < width; j++){
+    for (int i = 0; i < width; i++){
+        for (int j = 0; j < height; j++){
             if (trees) {
                 float random = dis(gen);
                 if(random <= probGrowth) {
@@ -88,7 +88,7 @@ ForestFireAutomata::ForestFireAutomata(int height, int width, bool trees)
 }
 
 ForestFireAutomata::~ForestFireAutomata() {
-    for (int i = 0; i < height; i++) {
+    for (int i = 0; i < width; i++) {
         delete[] status[i];
     }
     delete[] status;
@@ -110,32 +110,38 @@ void ForestFireAutomata::setProbCatchFire(float probability) {
     probCatchFire = probability;
 }
 
+void ForestFireAutomata::setTree(int x, int y){
+    if(y < height || x < width) {
+        status[x][y].set_tree();
+    }
+}
+
 void ForestFireAutomata::simulate() {
-    Status** old_status = new Status*[this->height];
-    for (int i = 0; i < this->height; i++){
-        old_status[i] = new Status[this->width];
+    Status** old_status = new Status*[this->width];
+    for (int i = 0; i < this->width; i++){
+        old_status[i] = new Status[this->height];
     }
 
-    for (int i = 0; i < height; i++){
-        for (int j = 0; j < width; j++){
+    for (int i = 0; i < width; i++){
+        for (int j = 0; j < height; j++){
             old_status[i][j] = status[i][j];
         }
     }
 
     //TODO simulate
 
-    for (int i = 0; i < height; i++) {
+    for (int i = 0; i < width; i++) {
         delete[] old_status[i];
     }
     delete[] old_status;
 }
 
-int ForestFireAutomata::getStatus(int height, int width) const {
-    if (height >= this->height || width >= this->width) {
+int ForestFireAutomata::getStatus(int x, int y) const {
+    if (y >= height || x >= width) {
         return 0;
     }
-    else if (status[height][width].get_tree()) {
-        if (status[height][width].get_fire()) {
+    else if (status[x][y].get_tree()) {
+        if (status[x][y].get_fire()) {
             return 2;
         }
         else {
