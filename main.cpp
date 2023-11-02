@@ -1,49 +1,92 @@
 #include <iostream>
 #include "ff-ca.h"
 #include <SDL2/SDL.h>
-
-const int SCREEN_WIDTH = 1200;
-const int SCREEN_HEIGHT = 800;
+#include <string>
 
 int main (int argc, char* argv[]) {
 
-    int width = 300;
-    int height = 200;
+    bool measure = false;
+    int screen_width = 1600;
+    int screen_height = 1000;
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
-		return 1;
-	}
-	SDL_Window* window = SDL_CreateWindow("Solar System Physics Simulation", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-	if (!window) {
-		std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-		return 1;
-	}
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	if (!renderer) {
-		std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 1;
-	}
+    int width = 150;
+    int height = 100;
 
-    bool quit = false;
-	SDL_Event e;
-
-    while (!quit) {
-        while (SDL_PollEvent(&e)) {
-        	if (e.type == SDL_QUIT) {
-            	quit = true;            
-            }
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg=="--width") {
+            if(i<=argc){
+				width = std::stoi(argv[++i]);
+			}
         }
-        
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
+        else if (arg=="--height") {
+            if(i<=argc){
+				height = std::stoi(argv[++i]);
+			}
+        }
+        else if (arg=="--measure") {
+            measure = true;
+        }
     }
 
-    SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+    if (width <= screen_width && height <= screen_height && !measure){
+
+        int tile_size = std::min(screen_width/width, screen_height/height);
+        screen_width = width * tile_size;
+        screen_height = height * tile_size;
+
+        if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+            std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+            return 1;
+        }
+        SDL_Window* window = SDL_CreateWindow("Solar System Physics Simulation", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, SDL_WINDOW_SHOWN);
+        if (!window) {
+            std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+            return 1;
+        }
+        SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        if (!renderer) {
+            std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return 1;
+        }
+
+        bool quit = false;
+        SDL_Event e;
+
+        while (!quit) {
+            while (SDL_PollEvent(&e)) {
+                if (e.type == SDL_QUIT) {
+                    quit = true;            
+                }
+                else if (e.type == SDL_KEYDOWN) {
+                    if (e.key.keysym.sym == SDLK_ESCAPE) {
+                        quit = true;
+                    }
+                }
+            }
+
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
+
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < height; j++) {
+                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                    if ((i%2==1 && j%2==1) || (i%2==0 && j%2==0)) {
+                        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+                    }
+                    SDL_Rect tileRect = {tile_size*i, tile_size*j, tile_size, tile_size};
+                    SDL_RenderFillRect(renderer, &tileRect);
+                }
+            }
+            SDL_RenderPresent(renderer);
+        }
+
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+    }
 
     return 0;
 }
