@@ -65,7 +65,7 @@ ForestFireAutomata::ForestFireAutomata(int width, int height, int** input)
 }
 
 ForestFireAutomata::ForestFireAutomata(int width, int height, bool trees) 
-        : height(height), width(width), probGrowth(0.1), probCatchFire(0.) {
+        : height(height), width(width), probGrowth(0.01), probCatchFire(0.2) {
     status = new Status*[width];
     for (int i = 0; i < width; i++){
         status[i] = new Status[height];
@@ -138,7 +138,7 @@ void ForestFireAutomata::simulate() {
                     status[i][j].set_tree();
                 }
             }
-            /*else {
+            else {
                 if (old_status[i][j].get_fire()) {
                     status[i][j].reset_tree();  //burn down
                 }
@@ -166,7 +166,7 @@ void ForestFireAutomata::simulate() {
                         }
                     }
                 }
-            }*/
+            }
         }
     }
 

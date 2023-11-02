@@ -29,3 +29,10 @@ vonMoore::vonMoore() {
     addNeighbor(1, 0);
     addNeighbor(1, 1);
 }
+
+vonNeumann::vonNeumann() {
+    addNeighbor(-1, 0);
+    addNeighbor(0, -1);
+    addNeighbor(0, 1);
+    addNeighbor(1, 0);
+}

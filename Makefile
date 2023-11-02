@@ -6,7 +6,7 @@ OBJS = $(SRCS:.cpp=.o)
 
 # Define compiler and flags
 CXX = g++
-CXXFLAGS = -Isrc/include
+CXXFLAGS = -Isrc/include -Ofast
 
 # Define linker and flags
 LDFLAGS = -Lsrc/lib -lmingw32 -mwindows -lSDL2main -lSDL2

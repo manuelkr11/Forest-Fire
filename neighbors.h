@@ -16,3 +16,8 @@ class vonMoore : public Neighborhood {
 public:
     vonMoore();
 };
+
+class vonNeumann : public Neighborhood {
+public:
+    vonNeumann();
+};

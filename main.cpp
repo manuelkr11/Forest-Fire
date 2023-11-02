@@ -71,7 +71,10 @@ int main (int argc, char* argv[]) {
         bool quit = false;
         SDL_Event e;
 
+        int counter = 0;
+
         while (!quit) {
+            counter++;
             while (SDL_PollEvent(&e)) {
                 if (e.type == SDL_QUIT) {
                     quit = true;            
@@ -83,6 +86,7 @@ int main (int argc, char* argv[]) {
                 }
             }
 
+            if (counter%10==0) {
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
 
@@ -93,10 +97,15 @@ int main (int argc, char* argv[]) {
                         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
                         SDL_Rect tileRect = {tile_size*i, tile_size*j, tile_size, tile_size};
                         SDL_RenderFillRect(renderer, &tileRect);
+                    } else if (forest_fire.getStatus(i, j)==2) {
+                        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+                        SDL_Rect tileRect = {tile_size*i, tile_size*j, tile_size, tile_size};
+                        SDL_RenderFillRect(renderer, &tileRect);
                     }
                 }
             }
             SDL_RenderPresent(renderer);
+            }
 
             forest_fire.simulate();
 

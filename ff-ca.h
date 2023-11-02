@@ -22,7 +22,7 @@ private:
     int width;
     int height;
     Status** status;
-    Neighborhood neighbors;
+    vonNeumann neighbors;
     float probGrowth;
     float probCatchFire;
 
