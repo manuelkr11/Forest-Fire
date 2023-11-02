@@ -45,7 +45,7 @@ Status& Status::operator=(const Status& other) {
 }
 
 ForestFireAutomata::ForestFireAutomata(int width, int height, int** input) 
-        : height(height), width(width), probGrowth(0.), probCatchFire(0.) {
+        : height(height), width(width), probGrowth(0.9), probCatchFire(0.) {
     status = new Status*[this->width];
     for (int i = 0; i < this->width; i++){
         status[i] = new Status[this->height];
@@ -65,7 +65,7 @@ ForestFireAutomata::ForestFireAutomata(int width, int height, int** input)
 }
 
 ForestFireAutomata::ForestFireAutomata(int width, int height, bool trees) 
-        : height(height), width(width), probGrowth(0.), probCatchFire(0.) {
+        : height(height), width(width), probGrowth(0.1), probCatchFire(0.) {
     status = new Status*[width];
     for (int i = 0; i < width; i++){
         status[i] = new Status[height];
@@ -117,18 +117,58 @@ void ForestFireAutomata::setTree(int x, int y){
 }
 
 void ForestFireAutomata::simulate() {
-    Status** old_status = new Status*[this->width];
-    for (int i = 0; i < this->width; i++){
-        old_status[i] = new Status[this->height];
+    Status** old_status = new Status*[width];
+    for (int i = 0; i < width; i++){
+        old_status[i] = new Status[height];
     }
-
     for (int i = 0; i < width; i++){
         for (int j = 0; j < height; j++){
             old_status[i][j] = status[i][j];
         }
     }
 
-    //TODO simulate
+    for (int i = 0; i < width; i++){
+        for (int j = 0; j < height; j++){
+            if (!old_status[i][j].get_tree()) {
+                std::random_device rd;
+                std::mt19937 gen(rd());
+                std::uniform_real_distribution<float> dis(0.0, 1.0);
+                float prob = dis(gen);
+                if (prob<=probGrowth) {
+                    status[i][j].set_tree();
+                }
+            }
+            /*else {
+                if (old_status[i][j].get_fire()) {
+                    status[i][j].reset_tree();  //burn down
+                }
+                else {
+                    int fire_neighbor_count = 0;
+                    for (int k = 0; k < neighbors.getNeighborCount(); k++) { //TODO could work with breakk
+                        int x_neighbor = i + neighbors.getNeighbor(k).first;
+                        int y_neighbor = j + neighbors.getNeighbor(k).second;
+                        if ((x_neighbor>=0) && (x_neighbor<width) && (y_neighbor>=0) && (y_neighbor<height)) {
+                            if(old_status[x_neighbor][y_neighbor].get_fire()){
+                                fire_neighbor_count++;
+                            }
+                        }
+                    }
+                    if (fire_neighbor_count > 0) {
+                        status[i][j].set_fire();
+                    }
+                    else {
+                        std::random_device rd;
+                        std::mt19937 gen(rd());
+                        std::uniform_real_distribution<float> dis(0.0, 1.0);
+                        float prob = dis(gen);
+                        if (prob<=probCatchFire) {
+                            status[i][j].set_fire();
+                        }
+                    }
+                }
+            }*/
+        }
+    }
 
     for (int i = 0; i < width; i++) {
         delete[] old_status[i];
