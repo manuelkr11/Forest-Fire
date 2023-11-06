@@ -1,5 +1,4 @@
 #include "ff-ca.h"
-#include <iostream>
 #include <omp.h>
 #include <random>
 #include <chrono>
@@ -111,11 +110,12 @@ void ForestFireAutomata::simulate(int nthreads) {
         }
     }
 
+    #pragma omp parallel num_threads(nthreads)
+    {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 gen(seed);
     std::uniform_real_distribution<float> dis(0.0, 1.0);
 
-    #pragma omp parallel num_threads(nthreads)
 	#pragma omp for
     for (int i = 0; i < width; i++){
         for (int j = 0; j < height; j++){
@@ -153,6 +153,7 @@ void ForestFireAutomata::simulate(int nthreads) {
                 }
             }
         }
+    }
     }
 
     for (int i = 0; i < width; i++) {

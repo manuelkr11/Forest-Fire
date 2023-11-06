@@ -1,0 +1,4 @@
+Resolution 1024x1024, 1000 Generations:
+0:16.926;  (1 threads)
+Resolution 1024x1024, 1000 Generations:
+0:03.140;  (12 threads)
