@@ -1,15 +1,15 @@
 # Define source files
-SRCS = main.cpp ff-ca.cpp neighbors.cpp
+SRCS = main.cpp ff-ca.cpp neighbors.cpp Timing.cpp
 
 # Define object files
 OBJS = $(SRCS:.cpp=.o)
 
 # Define compiler and flags
 CXX = g++
-CXXFLAGS = -Isrc/include -Ofast
+CXXFLAGS = -Isrc/include -Ofast -fopenmp
 
 # Define linker and flags
-LDFLAGS = -Lsrc/lib -lmingw32 -mwindows -lSDL2main -lSDL2
+LDFLAGS = -Lsrc/lib -lmingw32 -mwindows -lSDL2main -lSDL2 -fopenmp -Ofast
 
 # Target for the final executable
 TARGET = main

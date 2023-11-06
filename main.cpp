@@ -1,36 +1,49 @@
 #include <iostream>
+#include <fstream>
 #include "ff-ca.h"
 #include <SDL2/SDL.h>
 #include <string>
 #include <random>
 #include <omp.h>
+#include "Timing.h"
 
 int main (int argc, char* argv[]) {
 
     bool measure = false;
 
     int screen_width = 1600;
-    int screen_height = 1000;
+    int screen_height = 1024;
 
-    int width = 150;
-    int height = 100;
+    int width = 1024;
+    int height = 1024;
 
     int nthreads = 1;
+    int generations = 100;
 
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
-        if (arg=="--width") {
-            if(i<=argc){
+        if (arg == "--width") {
+            if (i <= argc) {
 				width = std::stoi(argv[++i]);
 			}
         }
-        else if (arg=="--height") {
-            if(i<=argc){
+        else if (arg == "--height") {
+            if (i <= argc) {
 				height = std::stoi(argv[++i]);
 			}
         }
-        else if (arg=="--measure") {
+        else if (arg == "--measure") {
             measure = true;
+        }
+        else if (arg == "--threads") {
+            if (i <= argc) {
+                nthreads = std::stoi(argv[++i]);
+            }
+        }
+        else if (arg == "--generations") {
+            if (i <= argc) {
+                generations = std::stoi(argv[++i]);
+            }
         }
     }
 
@@ -74,10 +87,7 @@ int main (int argc, char* argv[]) {
         bool quit = false;
         SDL_Event e;
 
-        int counter = 0;
-
         while (!quit) {
-            counter++;
             while (SDL_PollEvent(&e)) {
                 if (e.type == SDL_QUIT) {
                     quit = true;            
@@ -89,7 +99,6 @@ int main (int argc, char* argv[]) {
                 }
             }
 
-            if (counter%1==0) {
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             SDL_RenderClear(renderer);
 
@@ -106,7 +115,6 @@ int main (int argc, char* argv[]) {
                         SDL_RenderFillRect(renderer, &tileRect);
                     }
                 }
-            }
             SDL_RenderPresent(renderer);
             }
 
@@ -117,6 +125,19 @@ int main (int argc, char* argv[]) {
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
+    }
+    else {
+
+        Timing *timing = Timing::getInstance();
+        timing->startComputation();
+        for (int i = 0; i < generations; i++) {
+            forest_fire.simulate(nthreads);
+        }
+        timing->stopComputation();
+        std::string filename = "timing.txt";
+        std::ofstream timefile (filename, std::ios::app);
+		timefile << timing->getResults() << std::endl;
+		timefile.close(); 
     }
 
     return 0;
