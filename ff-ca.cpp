@@ -96,6 +96,12 @@ void ForestFireAutomata::setTree(int x, int y){
     }
 }
 
+void ForestFireAutomata::setFire(int x, int y){
+    if(y < height || x < width) {
+        status[x][y].set_fire();
+    }
+}
+
 void ForestFireAutomata::simulate(int nthreads) {
     Status** old_status = new Status*[width];
     for (int i = 0; i < width; i++){

@@ -53,7 +53,10 @@ int main (int argc, char* argv[]) {
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             float probability = dis(gen);
-            if (probability < 0.7 - ((std::sqrt((i - height / 2) * (i - height / 2) + (j - width / 2) * (j - width / 2))) / (std::max(width, height) / 2))*0.8) {
+            float centerX = width / 2.0;
+            float centerY = height / 2.0;
+            float distance = std::sqrt(((i - centerX) * (i - centerX)) / (centerX * centerX) + ((j - centerY) * (j - centerY)) / (centerY * centerY));
+            if (probability < 0.5 - (distance/2) * 0.8) {
                 forest_fire.setTree(i, j);
             }
         }
@@ -82,18 +85,57 @@ int main (int argc, char* argv[]) {
             return 1;
         }
 
+        float p_tree = 0;
+        float p_fire = 0;
+        forest_fire.setProbGrowth(0);
+        forest_fire.setProbCatchFire(0);
+
         bool quit = false;
         SDL_Event e;
+        std::pair<int, int> mouse_pos = std::make_pair(0, 0);
+
+        int delay = 0;
+        if (height*width <= 10000) {
+            delay = 300;
+        } else if (height*width <= 1000000) {
+            delay = -0.00033 * height * width + 330;
+        }
 
         while (!quit) {
             while (SDL_PollEvent(&e)) {
-                if (e.type == SDL_QUIT) {
-                    quit = true;            
-                }
-                else if (e.type == SDL_KEYDOWN) {
-                    if (e.key.keysym.sym == SDLK_ESCAPE) {
+                switch (e.type) {
+                    case SDL_QUIT:
                         quit = true;
-                    }
+                        break;
+                    case SDL_MOUSEMOTION:
+                        SDL_GetMouseState(&mouse_pos.first, &mouse_pos.second);
+                        break;
+                    case SDL_MOUSEBUTTONDOWN:
+                        forest_fire.setFire(mouse_pos.first/tile_size, mouse_pos.second/tile_size);
+                        break;
+                    case SDL_KEYDOWN:
+                        switch (e.key.keysym.sym) {
+                            case SDLK_ESCAPE:
+                                quit = true;
+                                break;
+                            case SDLK_n:
+                                p_tree = std::max(0., p_tree - 0.0005);
+                                forest_fire.setProbGrowth(p_tree);
+                                break;
+                            case SDLK_m:
+                                p_tree = std::min(1., p_tree + 0.0005);
+                                forest_fire.setProbGrowth(p_tree);
+                                break;
+                            case SDLK_j:
+                                p_fire = std::max(0., p_fire - 0.001);
+                                forest_fire.setProbCatchFire(p_fire);
+                                break;
+                            case SDLK_k:
+                                p_fire = std::min(1., p_fire + 0.001);
+                                forest_fire.setProbCatchFire(p_fire);
+                                break;
+                        }
+                        break;
                 }
             }
 
@@ -118,6 +160,8 @@ int main (int argc, char* argv[]) {
             SDL_RenderPresent(renderer);
 
             forest_fire.simulate(nthreads);
+
+            SDL_Delay(delay);
         }
 
         SDL_DestroyRenderer(renderer);

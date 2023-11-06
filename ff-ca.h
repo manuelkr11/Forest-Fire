@@ -34,6 +34,7 @@ public:
     void setProbGrowth(float probability);
     void setProbCatchFire(float probability);
     void setTree(int x, int y);
+    void setFire(int x, int y);
     void simulate(int nthreads);
     int getStatus(int x, int y) const;
 };
