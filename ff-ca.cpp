@@ -44,28 +44,8 @@ Status& Status::operator=(const Status& other) {
     return *this;
 }
 
-ForestFireAutomata::ForestFireAutomata(int width, int height, int** input) 
-        : height(height), width(width), probGrowth(0.9), probCatchFire(0.) {
-    status = new Status*[this->width];
-    for (int i = 0; i < this->width; i++){
-        status[i] = new Status[this->height];
-    }
-    for (int i = 0; i < width; i++){
-        for (int j = 0; j < height; j++){
-            switch(input[i][j]){
-                case 1:
-                    status[i][j].set_tree();
-                    break;
-                case 2:
-                    status[i][j].set_tree();
-                    status[i][j].set_fire();
-            }
-        }
-    }
-}
-
 ForestFireAutomata::ForestFireAutomata(int width, int height, bool trees) 
-        : height(height), width(width), probGrowth(0.0005), probCatchFire(0.01) {
+        : height(height), width(width), probGrowth(0.005), probCatchFire(0.5) {
     status = new Status*[width];
     for (int i = 0; i < width; i++){
         status[i] = new Status[height];

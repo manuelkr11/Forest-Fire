@@ -27,7 +27,6 @@ private:
     float probCatchFire;
 
 public:
-    ForestFireAutomata(int width, int height, int** input);
     ForestFireAutomata(int width, int height, bool trees);
     ~ForestFireAutomata();
     int getHeight() const;

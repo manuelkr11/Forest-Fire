@@ -115,11 +115,11 @@ int main (int argc, char* argv[]) {
                         SDL_RenderFillRect(renderer, &tileRect);
                     }
                 }
-            SDL_RenderPresent(renderer);
             }
 
-            forest_fire.simulate(nthreads);
+            SDL_RenderPresent(renderer);
 
+            forest_fire.simulate(nthreads);
         }
 
         SDL_DestroyRenderer(renderer);
