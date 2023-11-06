@@ -2,6 +2,7 @@
 #include <iostream>
 #include <omp.h>
 #include <random>
+#include <chrono>
 
 
 Status::Status() : tree(false), fire(false) {}
@@ -45,14 +46,14 @@ Status& Status::operator=(const Status& other) {
 }
 
 ForestFireAutomata::ForestFireAutomata(int width, int height, bool trees) 
-        : height(height), width(width), probGrowth(0.005), probCatchFire(0.5) {
+        : height(height), width(width), probGrowth(0.00005), probCatchFire(0.0001) {
     status = new Status*[width];
     for (int i = 0; i < width; i++){
         status[i] = new Status[height];
     }
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 gen(seed);
     std::uniform_real_distribution<float> dis(0.0, 1.0);
 
     for (int i = 0; i < width; i++){
@@ -110,14 +111,15 @@ void ForestFireAutomata::simulate(int nthreads) {
         }
     }
 
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 gen(seed);
+    std::uniform_real_distribution<float> dis(0.0, 1.0);
+
     #pragma omp parallel num_threads(nthreads)
 	#pragma omp for
     for (int i = 0; i < width; i++){
         for (int j = 0; j < height; j++){
             if (!old_status[i][j].get_tree()) {
-                std::random_device rd;
-                std::mt19937 gen(rd());
-                std::uniform_real_distribution<float> dis(0.0, 1.0);
                 float prob = dis(gen);
                 if (prob<=probGrowth) {
                     status[i][j].set_tree();
@@ -143,9 +145,6 @@ void ForestFireAutomata::simulate(int nthreads) {
                         status[i][j].set_fire();
                     }
                     else {
-                        std::random_device rd;
-                        std::mt19937 gen(rd());
-                        std::uniform_real_distribution<float> dis(0.0, 1.0);
                         float prob = dis(gen);
                         if (prob<=probCatchFire) {
                             status[i][j].set_fire();
